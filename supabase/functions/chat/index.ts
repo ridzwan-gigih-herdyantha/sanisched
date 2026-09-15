@@ -1,46 +1,287 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
+import { createClient } from "@supabase/supabase-js";
 
-// Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "@supabase/server";
+const TZ = "+07:00";
+const PHONE = /^(\+62|62|0)8[1-9][0-9]{6,11}$/;
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-console.log("Hello from Functions!");
-
-// This endpoint uses 'publishable' | 'secret' access, apiKey is required.
-// Use publishable for Client-facing, key-validated endpoints
-// Use secret for Server-to-server, internal calls
-export default {
-  fetch: withSupabase({ auth: ["publishable", "secret"] }, async (req, ctx) => {
-    // Called by another service with a secret key
-    // ctx.supabaseAdmin bypasses RLS — use for privileged operations
-    /*
-    if (ctx.authMode === "secret") {
-      const { user_id } = await req.json();
-      const { data } = await ctx.supabaseAdmin.auth.admin.getUserById(user_id);
-
-      return Response.json({
-        email: data?.user?.email,
-      });
-    }
-    */
-
-    const { name } = await req.json();
-
-    return Response.json({
-      message: `Hello ${name}!`,
-    });
-  }),
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, content-type, apikey",
 };
 
-/* To invoke locally:
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...cors, "content-type": "application/json" },
+  });
 
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+);
 
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/chat' \
-    --header 'apiKey: sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH' \
-    --data '{"name":"Functions"}'
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
-*/
+  const route = new URL(req.url).pathname.replace(/^\/chat\/?/, "");
+
+  try {
+    const body = await req.json();
+
+    if (route === "") return await handleChat(body);
+    if (route === "slots") return await handleSlots(body);
+    if (route === "booking") return await handleBooking(body);
+
+    return json({ error: "Endpoint not found" }, 404);
+  } catch (e) {
+    console.error(route, e);
+    return json({ error: "Something went wrong" }, 500);
+  }
+});
+
+function isValidDate(s: unknown): s is string {
+  return typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s);
+}
+
+function dayOfWeek(date: string) {
+  const [y, m, d] = date.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+}
+
+function buildSlots(start: string, end: string, durationMin: number, date: string) {
+  const from = Date.parse(`${date}T${start}${TZ}`);
+  const to = Date.parse(`${date}T${end}${TZ}`);
+  const step = durationMin * 60_000;
+  const out: number[] = [];
+  for (let t = from; t + step <= to; t += step) out.push(t);
+  return out;
+}
+
+const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+function openingHours(rows: { day_of_week: number; start_time: string; end_time: string }[]) {
+  const byDay = new Map<number, { start: string; end: string }>();
+  for (const r of rows) {
+    const h = byDay.get(r.day_of_week);
+    byDay.set(r.day_of_week, {
+      start: h && h.start < r.start_time ? h.start : r.start_time,
+      end: h && h.end > r.end_time ? h.end : r.end_time,
+    });
+  }
+  return DAYS.map((day, i) => {
+    const h = byDay.get(i);
+    return `${day}: ${h ? `${h.start.slice(0, 5)}–${h.end.slice(0, 5)}` : "Closed"}`;
+  }).join("\n");
+}
+
+async function availableSlots(serviceId: string, date: string) {
+  const { data: service } = await supabase
+    .from("services")
+    .select("id, duration_minutes, is_active")
+    .eq("id", serviceId)
+    .maybeSingle();
+
+  if (!service?.is_active) return { error: "Service not found" };
+
+  const { data: avail } = await supabase
+    .from("service_availability")
+    .select("start_time, end_time")
+    .eq("service_id", serviceId)
+    .eq("day_of_week", dayOfWeek(date));
+
+  if (!avail?.length) return { slots: [] };
+
+  const dayStart = Date.parse(`${date}T00:00:00${TZ}`);
+  const { data: booked } = await supabase
+    .from("bookings")
+    .select("starts_at")
+    .eq("service_id", serviceId)
+    .neq("status", "cancelled")
+    .gte("starts_at", new Date(dayStart).toISOString())
+    .lt("starts_at", new Date(dayStart + 86_400_000).toISOString());
+
+  const taken = new Set((booked ?? []).map((b: any) => Date.parse(b.starts_at)));
+  const now = Date.now();
+
+  const slots = [
+    ...new Set(
+      avail.flatMap((a: any) =>
+        buildSlots(a.start_time, a.end_time, service.duration_minutes, date)
+      ),
+    ),
+  ]
+    .filter((t) => !taken.has(t) && t > now)
+    .sort((a, b) => a - b)
+    .map((t) => new Date(t).toISOString());
+
+  return { slots };
+}
+
+async function handleChat({ messages }: any) {
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return json({ error: "messages is empty" }, 400);
+  }
+
+  const [{ data: clinic }, { data: faqs }, { data: services }, { data: avail }] =
+    await Promise.all([
+      supabase.from("clinic_info").select("name, address, phone, maps_url").maybeSingle(),
+      supabase.from("clinic_faqs").select("question, answer"),
+      supabase.from("services")
+        .select("id, name, description, duration_minutes")
+        .eq("is_active", true),
+      supabase.from("service_availability")
+        .select("day_of_week, start_time, end_time, services!inner(is_active)")
+        .eq("services.is_active", true),
+    ]);
+
+  const system = `You are an administrative assistant for a clinic. You have
+exactly two jobs: answering general questions about the clinic, and helping
+patients book an appointment.
+
+STRICT RULES:
+1. Answer only from the CLINIC DATA below. If the information is not there,
+   say you do not have it and suggest contacting the clinic directly.
+   Never make anything up.
+2. Never give medical advice, diagnoses, interpretations of symptoms, or
+   medication recommendations. If asked for any of those, politely decline,
+   direct the patient to a qualified healthcare professional, then offer to
+   help book an appointment.
+3. Never assess or imply how urgent or serious a patient's condition is.
+4. Be concise and friendly. Reply in the same language the patient writes in.
+
+CLINIC DATA — PROFILE:
+Name: ${clinic?.name ?? "-"}
+Address: ${clinic?.address ?? "-"}
+Phone: ${clinic?.phone ?? "-"}
+Maps: ${clinic?.maps_url ?? "-"}
+
+CLINIC DATA — OPENING HOURS (WIB):
+${openingHours(avail ?? [])}
+
+CLINIC DATA — FAQ:
+${faqs?.map((f: any) => `Q: ${f.question}\nA: ${f.answer}`).join("\n\n")}
+
+CLINIC DATA — SERVICES:
+${services?.map((s: any) => `- ${s.name} (id: ${s.id}, ${s.duration_minutes} minutes): ${s.description ?? "-"}`).join("\n")}
+
+RESPONSE FORMAT:
+Reply with valid JSON only, no other text, no markdown fences:
+{"intent":"faq"|"booking","reply":"your answer","service_id":null}
+Use intent "booking" when the patient wants to create or change an
+appointment, or asks how to book one. Set service_id when the patient has
+clearly named a service.`;
+
+const res = await fetch(
+  `${Deno.env.get("LLM_BASE_URL")}/chat/completions`,
+  {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "authorization": `Bearer ${Deno.env.get("LLM_API_KEY")}`,
+      "HTTP-Referer": Deno.env.get("APP_URL") ?? "",
+      "X-Title": "Clinic Booking Assistant",
+    },
+    body: JSON.stringify({
+      model: Deno.env.get("LLM_MODEL"),
+      max_tokens: 500,
+      messages: [
+        { role: "system", content: system },
+        ...messages.slice(-10).map((m: any) => ({
+          role: m.role === "assistant" ? "assistant" : "user",
+          content: String(m.content).slice(0, 2000),
+        })),
+      ],
+    }),
+  },
+);
+
+if (!res.ok) {
+  console.error("llm", res.status, await res.text());
+  return json({ error: "Assistant is unavailable right now" }, 502);
+}
+
+const data = await res.json();
+
+if (data.error) {
+  console.error("llm", data.error);
+  return json({ error: "Assistant is unavailable right now" }, 502);
+}
+
+const raw = String(data.choices?.[0]?.message?.content ?? "")
+  .replace(/```json|```/g, "")
+  .trim();
+
+  try {
+    return json(JSON.parse(raw));
+  } catch {
+    return json({ intent: "faq", reply: raw, service_id: null });
+  }
+}
+
+async function handleSlots({ service_id, date }: any) {
+  if (!service_id || !isValidDate(date)) {
+    return json({ error: "service_id and date (YYYY-MM-DD) are required" }, 400);
+  }
+  const result = await availableSlots(service_id, date);
+  return result.error ? json(result, 404) : json(result);
+}
+
+async function handleBooking(body: any) {
+  const { service_id, date, starts_at } = body;
+  const name = String(body.patient_name ?? "").trim();
+  const phone = String(body.patient_phone ?? "").replace(/[\s-]/g, "");
+  const email = String(body.patient_email ?? "").trim().toLowerCase() || null;
+
+  if (!service_id || !isValidDate(date) || !starts_at) {
+    return json({ error: "Incomplete booking data" }, 400);
+  }
+  if (name.length < 2 || name.length > 100) {
+    return json({ error: "Invalid name" }, 400);
+  }
+  if (!PHONE.test(phone)) {
+    return json({ error: "Invalid phone number" }, 400);
+  }
+  if (email && !EMAIL.test(email)) {
+    return json({ error: "Invalid email" }, 400);
+  }
+
+  const { slots, error } = await availableSlots(service_id, date);
+  if (error) return json({ error }, 404);
+
+  const requested = Date.parse(starts_at);
+  const match = slots?.find((s) => Date.parse(s) === requested);
+
+  if (!match) {
+    return json({ error: "That slot is unavailable, please pick another time", slots }, 409);
+  }
+
+  const { data, error: insertError } = await supabase
+    .from("bookings")
+    .insert({
+      service_id,
+      patient_name: name,
+      patient_phone: phone,
+      patient_email: email,
+      starts_at: match,
+    })
+    .select("id, starts_at")
+    .single();
+
+  if (insertError) {
+    if (insertError.code === "23505") {
+      const retry = await availableSlots(service_id, date);
+      return json({
+        error: "That slot was just taken, please pick another time",
+        slots: retry.slots,
+      }, 409);
+    }
+    throw insertError;
+  }
+
+  return json({
+    booking_id: data.id,
+    starts_at: data.starts_at,
+    message: "Appointment booked",
+  }, 201);
+}

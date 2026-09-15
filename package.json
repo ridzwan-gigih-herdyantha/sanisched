@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "migrate": "set -a && . ./.env && set +a && npx supabase db push --db-url \"$SUPABASE_DB_URL\"",
+    "migrate:seed": "set -a && . ./.env && set +a && npx supabase db push --db-url \"$SUPABASE_DB_URL\" --include-seed",
+    "functions:deploy": "set -a && . ./.env && set +a && ref=${VITE_SUPABASE_URL#https://} && ref=${ref%%.*} && npx supabase secrets set --project-ref \"$ref\" --env-file supabase/functions/.env && npx supabase functions deploy chat --project-ref \"$ref\" --use-api"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
