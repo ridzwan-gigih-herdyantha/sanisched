@@ -8,9 +8,10 @@ import {
   todayInJakarta,
 } from "../lib/api";
 
-export default function BookingPanel({ initialServiceId, onDone, onCancel }) {
+export default function BookingPanel({ initialServiceId, initialDoctorId, onDone, onCancel }) {
   const [services, setServices] = useState([]);
   const [serviceId, setServiceId] = useState(initialServiceId || "");
+  const [doctorId, setDoctorId] = useState(initialDoctorId || "");
   const [date, setDate] = useState(todayInJakarta());
   const [slots, setSlots] = useState(null);
   const [slot, setSlot] = useState("");
@@ -24,25 +25,35 @@ export default function BookingPanel({ initialServiceId, onDone, onCancel }) {
     listServices().then(setServices);
   }, []);
 
+  const service = services.find((s) => s.id === serviceId);
+  const doctors = service?.doctors ?? [];
+  // keep the picked doctor only if they offer this service; auto-pick when there's just one
+  const activeDoctorId = doctors.some((d) => d.id === doctorId)
+    ? doctorId
+    : doctors.length === 1
+      ? doctors[0].id
+      : "";
+
   useEffect(() => {
-    if (!serviceId || !date) return;
+    if (!serviceId || !activeDoctorId || !date) return;
     setSlots(null);
     setSlot("");
     setError("");
     setLoading(true);
-    fetchSlots(serviceId, date)
+    fetchSlots(serviceId, activeDoctorId, date)
       .then(({ ok, data }) => {
         if (!ok) setError(data.error || "Failed to load slots");
         setSlots(data.slots || []);
       })
       .finally(() => setLoading(false));
-  }, [serviceId, date]);
+  }, [serviceId, activeDoctorId, date]);
 
   async function submit() {
     setError("");
     setLoading(true);
     const { ok, data } = await createBooking({
       service_id: serviceId,
+      doctor_id: activeDoctorId,
       date,
       starts_at: slot,
       patient_name: name,
@@ -60,11 +71,13 @@ export default function BookingPanel({ initialServiceId, onDone, onCancel }) {
       return;
     }
 
-    const service = services.find((s) => s.id === serviceId);
-    onDone(`${service?.name || "Appointment"} — ${formatDateTime(data.starts_at)}`);
+    const doctor = doctors.find((d) => d.id === activeDoctorId);
+    onDone(
+      `${service?.name || "Appointment"} with ${doctor?.name || "the doctor"} — ${formatDateTime(data.starts_at)}`,
+    );
   }
 
-  const ready = serviceId && slot && name.trim().length >= 2 && phone.trim();
+  const ready = serviceId && activeDoctorId && slot && name.trim().length >= 2 && phone.trim();
 
   return (
     <div className="border-t border-slate-200 bg-white px-4 py-5">
@@ -96,6 +109,26 @@ export default function BookingPanel({ initialServiceId, onDone, onCancel }) {
             </select>
           </label>
 
+          {serviceId && (
+            <label className="block">
+              <span className="mb-1 block text-xs text-slate-500">Doctor</span>
+              <select
+                value={activeDoctorId}
+                onChange={(e) => setDoctorId(e.target.value)}
+                disabled={doctors.length < 2}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-50"
+              >
+                {doctors.length === 0 && <option value="">No doctor available</option>}
+                {doctors.length > 1 && <option value="">Select a doctor</option>}
+                {doctors.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}{d.specialty ? ` — ${d.specialty}` : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+
           <label className="block">
             <span className="mb-1 block text-xs text-slate-500">Date</span>
             <input
@@ -108,7 +141,7 @@ export default function BookingPanel({ initialServiceId, onDone, onCancel }) {
           </label>
         </div>
 
-        {serviceId && (
+        {activeDoctorId && (
           <div>
             <span className="mb-2 block text-xs text-slate-500">Available times</span>
             {loading && !slots && (

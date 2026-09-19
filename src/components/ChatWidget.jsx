@@ -40,7 +40,10 @@ export default function ChatWidget({ open, onOpenChange, booking, onBookingChang
 
     setMessages([...next, { role: "assistant", content: data.reply }]);
     if (data.intent === "booking") {
-      onBookingChange({ serviceId: data.service_id || "" });
+      onBookingChange({
+        serviceId: data.service_id || "",
+        doctorId: data.doctor_id || "",
+      });
     }
   }
 
@@ -77,8 +80,9 @@ export default function ChatWidget({ open, onOpenChange, booking, onBookingChang
           {booking ? (
             <div className="max-h-[65%] overflow-y-auto">
               <BookingPanel
-                key={booking.serviceId}
+                key={`${booking.serviceId}:${booking.doctorId || ""}`}
                 initialServiceId={booking.serviceId}
+                initialDoctorId={booking.doctorId}
                 onDone={finishBooking}
                 onCancel={() => onBookingChange(null)}
               />

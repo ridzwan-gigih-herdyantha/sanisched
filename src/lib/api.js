@@ -15,7 +15,8 @@ async function post(path, body) {
 }
 
 export const sendChat = (messages) => post("", { messages });
-export const fetchSlots = (service_id, date) => post("/slots", { service_id, date });
+export const fetchSlots = (service_id, doctor_id, date) =>
+  post("/slots", { service_id, doctor_id, date });
 export const createBooking = (payload) => post("/booking", payload);
 
 async function get(path) {
@@ -26,7 +27,9 @@ async function get(path) {
 }
 
 export const listServices = () =>
-  get("services?select=id,name,description,duration_minutes&is_active=eq.true&order=name");
+  get(
+    "services?select=id,name,description,duration_minutes,doctors(id,name,specialty)&is_active=eq.true&order=name",
+  );
 
 export const getClinicInfo = () =>
   get("clinic_info?select=name,address,phone,maps_url&limit=1").then((rows) => rows[0] ?? null);
@@ -35,7 +38,7 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 
 export async function getOpeningHours() {
   const rows = await get(
-    "service_availability?select=day_of_week,start_time,end_time,services!inner(is_active)&services.is_active=eq.true",
+    "doctor_availability?select=day_of_week,start_time,end_time,doctors!inner(id)",
   );
   const byDay = new Map();
   for (const r of rows) {
@@ -75,3 +78,4 @@ export function formatDateTime(iso) {
     timeStyle: "short",
   });
 }
+
