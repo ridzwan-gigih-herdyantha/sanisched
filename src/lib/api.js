@@ -64,7 +64,7 @@ export function todayInJakarta() {
 }
 
 export function formatTime(iso) {
-  return new Date(iso).toLocaleTimeString("id-ID", {
+  return new Date(iso).toLocaleTimeString("en-GB", {
     timeZone: JAKARTA,
     hour: "2-digit",
     minute: "2-digit",
@@ -72,7 +72,7 @@ export function formatTime(iso) {
 }
 
 export function formatDateTime(iso) {
-  return new Date(iso).toLocaleString("id-ID", {
+  return new Date(iso).toLocaleString("en-GB", {
     timeZone: JAKARTA,
     dateStyle: "full",
     timeStyle: "short",
