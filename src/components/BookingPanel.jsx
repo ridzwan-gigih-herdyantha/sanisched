@@ -80,13 +80,13 @@ export default function BookingPanel({ initialServiceId, initialDoctorId, onDone
   const ready = serviceId && activeDoctorId && slot && name.trim().length >= 2 && phone.trim();
 
   return (
-    <div className="border-t border-slate-200 bg-white px-4 py-5">
+    <div className="border-t border-hairline bg-white px-5 py-6">
       <div className="mx-auto max-w-2xl space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-medium text-slate-900">Book an appointment</h2>
+          <h2 className="font-serif text-2xl leading-8 text-ink">Book an appointment</h2>
           <button
             onClick={onCancel}
-            className="text-xs text-slate-500 hover:text-slate-800"
+            className="rounded-btn px-2 py-1 text-sm text-stone hover:text-ink"
           >
             Cancel
           </button>
@@ -94,11 +94,11 @@ export default function BookingPanel({ initialServiceId, initialDoctorId, onDone
 
         <div className="grid gap-3">
           <label className="block">
-            <span className="mb-1 block text-xs text-slate-500">Service</span>
+            <span className="mb-1.5 block text-[13px] font-medium text-stone">Service</span>
             <select
               value={serviceId}
               onChange={(e) => setServiceId(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="w-full rounded-btn border border-hairline bg-white px-3 py-2.5 text-sm"
             >
               <option value="">Select a service</option>
               {services.map((s) => (
@@ -111,12 +111,12 @@ export default function BookingPanel({ initialServiceId, initialDoctorId, onDone
 
           {serviceId && (
             <label className="block">
-              <span className="mb-1 block text-xs text-slate-500">Doctor</span>
+              <span className="mb-1.5 block text-[13px] font-medium text-stone">Doctor</span>
               <select
                 value={activeDoctorId}
                 onChange={(e) => setDoctorId(e.target.value)}
                 disabled={doctors.length < 2}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm disabled:bg-slate-50"
+                className="w-full rounded-btn border border-hairline bg-white px-3 py-2.5 text-sm disabled:bg-paper"
               >
                 {doctors.length === 0 && <option value="">No doctor available</option>}
                 {doctors.length > 1 && <option value="">Select a doctor</option>}
@@ -130,25 +130,25 @@ export default function BookingPanel({ initialServiceId, initialDoctorId, onDone
           )}
 
           <label className="block">
-            <span className="mb-1 block text-xs text-slate-500">Date</span>
+            <span className="mb-1.5 block text-[13px] font-medium text-stone">Date</span>
             <input
               type="date"
               value={date}
               min={todayInJakarta()}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="w-full rounded-btn border border-hairline bg-white px-3 py-2.5 text-sm"
             />
           </label>
         </div>
 
         {activeDoctorId && (
           <div>
-            <span className="mb-2 block text-xs text-slate-500">Available times</span>
+            <span className="mb-2 block text-[13px] font-medium text-stone">Available times</span>
             {loading && !slots && (
-              <p className="text-sm text-slate-400">Loading…</p>
+              <p className="text-sm text-stone">Loading…</p>
             )}
             {slots?.length === 0 && (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-stone">
                 No open slots on this date. Try another day.
               </p>
             )}
@@ -158,10 +158,10 @@ export default function BookingPanel({ initialServiceId, initialDoctorId, onDone
                   <button
                     key={s}
                     onClick={() => setSlot(s)}
-                    className={`rounded-lg px-3 py-1.5 text-sm ring-1 transition ${
+                    className={`rounded px-3 py-2 text-sm tabular-nums ring-1 transition-colors duration-150 ${
                       slot === s
-                        ? "bg-teal-600 text-white ring-teal-600"
-                        : "bg-white text-slate-700 ring-slate-300 hover:ring-teal-400"
+                        ? "bg-clinic text-white ring-clinic"
+                        : "bg-white text-ink ring-hairline hover:ring-clinic"
                     }`}
                   >
                     {formatTime(s)}
@@ -178,30 +178,30 @@ export default function BookingPanel({ initialServiceId, initialDoctorId, onDone
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Full name"
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="rounded-btn border border-hairline bg-white px-3 py-2.5 text-sm"
             />
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="WhatsApp number (e.g. 0812…)"
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="rounded-btn border border-hairline bg-white px-3 py-2.5 text-sm"
             />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email (optional)"
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="rounded-btn border border-hairline bg-white px-3 py-2.5 text-sm"
             />
           </div>
         )}
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-[#b42318]">{error}</p>}
 
         <button
           onClick={submit}
           disabled={!ready || loading}
-          className="w-full rounded-lg bg-teal-600 py-2.5 text-sm font-medium text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="w-full rounded-btn bg-clinic py-3 text-sm font-semibold text-white transition-colors duration-150 hover:bg-clinic-deep disabled:cursor-not-allowed disabled:bg-hairline disabled:text-stone"
         >
           {loading ? "Booking…" : "Confirm appointment"}
         </button>

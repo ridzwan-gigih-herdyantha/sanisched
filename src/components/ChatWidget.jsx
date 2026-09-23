@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { sendChat } from "../lib/api";
 import MessageList from "./MessageList";
 import BookingPanel from "./BookingPanel";
@@ -57,19 +58,42 @@ export default function ChatWidget({ open, onOpenChange, booking, onBookingChang
 
   return (
     <>
-      {open && (
-        <div className="fixed inset-0 z-50 flex flex-col overflow-hidden bg-slate-50 sm:inset-auto sm:right-6 sm:bottom-24 sm:h-[min(640px,calc(100vh-8rem))] sm:w-[400px] sm:rounded-2xl sm:shadow-2xl sm:ring-1 sm:ring-slate-200">
-          <header className="flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3">
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            key="backdrop"
+            aria-hidden="true"
+            onClick={() => onOpenChange(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="fixed inset-0 z-50 bg-ink/30"
+          />
+        )}
+        {open && (
+          <motion.div
+            key="panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Clinic assistant and booking"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="fixed inset-y-0 right-0 z-50 flex w-full flex-col overflow-hidden border-l border-hairline bg-paper sm:w-[440px]"
+          >
+          <header className="flex items-start justify-between gap-3 border-b border-hairline bg-paper px-5 py-4">
             <div>
-              <h2 className="text-sm font-medium text-slate-900">Clinic Assistant</h2>
-              <p className="text-xs text-slate-500">
+              <h2 className="font-serif text-2xl leading-8 text-ink">Clinic Assistant</h2>
+              <p className="text-[13px] text-stone">
                 Scheduling and general questions only — not medical advice.
               </p>
             </div>
             <button
               onClick={() => onOpenChange(false)}
               aria-label="Close chat"
-              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              className="flex h-11 w-11 items-center justify-center rounded-btn text-stone hover:bg-mist hover:text-ink"
             >
               <CloseIcon />
             </button>
@@ -78,7 +102,7 @@ export default function ChatWidget({ open, onOpenChange, booking, onBookingChang
           <MessageList messages={messages} loading={loading} />
 
           {booking ? (
-            <div className="max-h-[65%] overflow-y-auto">
+            <div className="max-h-[75%] overflow-y-auto">
               <BookingPanel
                 key={`${booking.serviceId}:${booking.doctorId || ""}`}
                 initialServiceId={booking.serviceId}
@@ -88,21 +112,21 @@ export default function ChatWidget({ open, onOpenChange, booking, onBookingChang
               />
             </div>
           ) : (
-            <div className="border-t border-slate-200 bg-white px-4 py-3">
+            <div className="border-t border-hairline bg-white px-5 py-4">
               {messages.length === 1 && (
                 <div className="mb-3 flex flex-wrap gap-2">
                   {QUICK_REPLIES.map((q) => (
                     <button
                       key={q}
                       onClick={() => send(q)}
-                      className="rounded-full bg-white px-3 py-1.5 text-xs text-slate-600 ring-1 ring-slate-300 transition hover:ring-teal-400"
+                      className="rounded-btn border border-hairline bg-white px-3 py-2 text-[13px] text-ink transition-colors duration-150 hover:border-clinic"
                     >
                       {q}
                     </button>
                   ))}
                   <button
                     onClick={() => onBookingChange({ serviceId: "" })}
-                    className="rounded-full bg-teal-50 px-3 py-1.5 text-xs font-medium text-teal-700 ring-1 ring-teal-200 transition hover:ring-teal-400"
+                    className="rounded-btn border border-clinic bg-mist px-3 py-2 text-[13px] font-semibold text-clinic transition-colors duration-150 hover:bg-white"
                   >
                     Book an appointment
                   </button>
@@ -114,30 +138,32 @@ export default function ChatWidget({ open, onOpenChange, booking, onBookingChang
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && send()}
                   placeholder="Ask about hours, services, or book a visit…"
-                  className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-teal-500 focus:outline-none"
+                  aria-label="Message"
+                  className="min-w-0 flex-1 rounded-btn border border-hairline bg-white px-3.5 py-3 text-sm focus:border-clinic focus:outline-none"
                 />
                 <button
                   onClick={() => send()}
                   disabled={loading || !input.trim()}
-                  className="rounded-lg bg-teal-600 px-4 text-sm font-medium text-white transition hover:bg-teal-700 disabled:bg-slate-300"
+                  className="rounded-btn bg-clinic px-4 text-sm font-semibold text-white transition-colors duration-150 hover:bg-clinic-deep disabled:bg-hairline disabled:text-stone"
                 >
                   Send
                 </button>
               </div>
             </div>
           )}
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <button
-        onClick={() => onOpenChange(!open)}
-        aria-label={open ? "Close chat" : "Open chat"}
-        className={`fixed right-6 bottom-6 z-50 h-14 w-14 items-center justify-center rounded-full bg-teal-600 text-white shadow-lg transition hover:bg-teal-700 ${
-          open ? "hidden sm:flex" : "flex"
-        }`}
-      >
-        {open ? <CloseIcon size={24} /> : <ChatIcon size={24} />}
-      </button>
+      {!open && (
+        <button
+          onClick={() => onOpenChange(true)}
+          aria-label="Open chat"
+          className="fixed right-5 bottom-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-ink text-white transition-colors duration-150 hover:bg-clinic sm:right-6 sm:bottom-6"
+        >
+          <ChatIcon size={24} />
+        </button>
+      )}
     </>
   );
 }

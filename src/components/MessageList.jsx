@@ -18,8 +18,8 @@ export default function MessageList({ messages, loading }) {
             <div
               className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                 m.role === "user"
-                  ? "bg-teal-600 text-white"
-                  : "bg-white text-slate-700 ring-1 ring-slate-200"
+                  ? "bg-clinic text-white"
+                  : "bg-white text-ink ring-1 ring-hairline"
               }`}
             >
               {m.content}
@@ -29,11 +29,11 @@ export default function MessageList({ messages, loading }) {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="flex gap-1 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200">
+            <div className="flex gap-1 rounded-2xl bg-white px-4 py-3 ring-1 ring-hairline">
               {[0, 150, 300].map((d) => (
                 <span
                   key={d}
-                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400"
+                  className="h-1.5 w-1.5 animate-pulse rounded-full bg-stone"
                   style={{ animationDelay: `${d}ms` }}
                 />
               ))}

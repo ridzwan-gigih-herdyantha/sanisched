@@ -31,6 +31,11 @@ export const listServices = () =>
     "services?select=id,name,description,duration_minutes,doctors(id,name,specialty)&is_active=eq.true&order=name",
   );
 
+export const listDoctors = () =>
+  get(
+    "doctors?select=id,name,specialty,bio,photo_url,services(id,name,is_active),doctor_availability(day_of_week,start_time,end_time)&is_active=eq.true&order=name",
+  );
+
 export const getClinicInfo = () =>
   get("clinic_info?select=name,address,phone,maps_url&limit=1").then((rows) => rows[0] ?? null);
 

@@ -2,8 +2,64 @@
 
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+
+  --color-paper: #f7f8f7;
+  --color-ink: #17242b;
+  --color-clinic: #0b6075;
+  --color-clinic-deep: #084c5d;
+  --color-mist: #dce8eb;
+  --color-stone: #5e6668;
+  --color-hairline: #d9dedf;
+  --color-rule: #b8cacf;
+
+  --radius-btn: 10px;
+  --radius-img: 16px;
+  --radius-img-lg: 24px;
 }
 
-html {
-  scroll-behavior: smooth;
+@utility page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1288px;
+  padding-inline: 20px;
+  @media (width >= 40rem) {
+    padding-inline: 24px;
+  }
+}
+
+@layer base {
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-clinic);
+    outline-offset: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
