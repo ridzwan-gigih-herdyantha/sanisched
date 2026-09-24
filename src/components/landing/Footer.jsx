@@ -1,5 +1,5 @@
-import { ClinicMark } from "../icons";
-import { telHref } from "../../lib/schedule";
+import { ClinicMark, WhatsAppIcon } from "../icons";
+import { whatsappHref } from "../../lib/schedule";
 import { NAV } from "./nav";
 import Button from "./Button";
 
@@ -42,8 +42,8 @@ export default function Footer({ clinic, hours, onBook }) {
         <div className="flex flex-col items-start gap-4">
           <h2 className="font-semibold text-white">Contact</h2>
           {clinic?.phone && (
-            <a href={telHref(clinic.phone)} className="tabular-nums hover:text-white">
-              {clinic.phone}
+            <a href={whatsappHref()} target="_blank" rel="noopener noreferrer" className="hover:text-white">
+              <span className="inline-flex items-center gap-2"><WhatsAppIcon size={18} className="text-[#25D366]" />Chat WhatsApp</span>
             </a>
           )}
           <Button variant="light" size="sm" onClick={() => onBook()} className="text-ink hover:text-ink">

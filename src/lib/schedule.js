@@ -80,6 +80,11 @@ export function doctorName(name) {
   };
 }
 
-export function telHref(phone) {
-  return `tel:${phone.replace(/[^\d+]/g, "")}`;
+export const WHATSAPP_NUMBER = "6285725078103";
+
+export const WHATSAPP_TEMPLATE =
+  "Hello, I would like to inquire about the clinic's services and make an appointment.\n\nName:\nConcern:\nPreferred Date:";
+
+export function whatsappHref(message = WHATSAPP_TEMPLATE) {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }

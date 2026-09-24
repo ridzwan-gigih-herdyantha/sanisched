@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ClinicMark, CloseIcon, MenuIcon } from "../icons";
-import { telHref } from "../../lib/schedule";
+import { ClinicMark, CloseIcon, MenuIcon, WhatsAppIcon } from "../icons";
+import { whatsappHref } from "../../lib/schedule";
 import Button from "./Button";
 import { NAV } from "./nav";
 
@@ -35,10 +35,12 @@ export default function Header({ clinic, onBook }) {
         <div className="ml-auto flex items-center gap-6">
           {clinic?.phone && (
             <a
-              href={telHref(clinic.phone)}
-              className="hidden text-[15px] font-medium text-stone tabular-nums transition-colors duration-150 hover:text-ink xl:block"
+              href={whatsappHref()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden text-[15px] font-medium text-stone transition-colors duration-150 hover:text-ink xl:inline-flex"
             >
-              {clinic.phone}
+              <span className="inline-flex items-center gap-2"><WhatsAppIcon size={18} className="text-[#25D366]" />Chat WhatsApp</span>
             </a>
           )}
           <div className="hidden sm:block">
@@ -80,7 +82,7 @@ export default function Header({ clinic, onBook }) {
               ))}
               {clinic?.phone && (
                 <li className="py-4 text-base text-stone">
-                  <a href={telHref(clinic.phone)}>{clinic.phone}</a>
+                  <a href={whatsappHref()} target="_blank" rel="noopener noreferrer"><span className="inline-flex items-center gap-2"><WhatsAppIcon size={18} className="text-[#25D366]" />Chat WhatsApp</span></a>
                 </li>
               )}
               <li className="pb-4 sm:hidden">

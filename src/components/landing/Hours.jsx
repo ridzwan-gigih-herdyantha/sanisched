@@ -1,5 +1,6 @@
+import { WhatsAppIcon } from "../icons";
 import { PHOTOS } from "../../lib/media";
-import { DAY_LONG, telHref, todayDow } from "../../lib/schedule";
+import { DAY_LONG, whatsappHref, todayDow } from "../../lib/schedule";
 
 export default function Hours({ clinic, hours }) {
   const photo = PHOTOS.hours;
@@ -55,9 +56,9 @@ export default function Hours({ clinic, hours }) {
             )}
             {clinic?.phone && (
               <div className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium text-stone">Phone</span>
-                <a href={telHref(clinic.phone)} className="text-[17px] leading-[26px] tabular-nums hover:text-clinic">
-                  {clinic.phone}
+                <span className="text-sm font-medium text-stone">WhatsApp</span>
+                <a href={whatsappHref()} target="_blank" rel="noopener noreferrer" className="text-[17px] leading-[26px] hover:text-clinic">
+                  <span className="inline-flex items-center gap-2"><WhatsAppIcon size={18} className="text-[#25D366]" />Chat WhatsApp</span>
                 </a>
               </div>
             )}
