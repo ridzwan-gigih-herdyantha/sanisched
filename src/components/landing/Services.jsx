@@ -2,9 +2,9 @@ import { TextAction } from "./Button";
 
 export default function Services({ services, loaded, onBook }) {
   return (
-    <section id="services" className="page scroll-mt-24 pt-24 lg:pt-28">
+    <section id="services" aria-labelledby="services-heading" className="page scroll-mt-24 pt-24 lg:pt-28">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
-        <h2 className="max-w-[620px] font-serif text-[34px] leading-10 font-normal tracking-[-0.015em] lg:text-[56px] lg:leading-[60px]">
+        <h2 id="services-heading" className="max-w-[620px] font-serif text-[34px] leading-10 font-normal tracking-[-0.015em] lg:text-[56px] lg:leading-[60px]">
           Every visit has its own time, and its own doctor.
         </h2>
         <p className="max-w-[360px] text-base leading-[26px] text-stone">

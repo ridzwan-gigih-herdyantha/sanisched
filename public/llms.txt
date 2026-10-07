@@ -1,0 +1,76 @@
+# Sanisched Clinic
+
+> Sanisched Clinic is a small neighbourhood clinic in Jakarta, Indonesia, offering
+> general consultations, dental care, and routine health check-ups. Appointments
+> are booked in about a minute through WhatsApp or the on-site chat assistant.
+
+## Key facts
+
+- **Name:** Sanisched Clinic (also: Klinik Sanisched)
+- **Type:** Medical clinic + Dental clinic (neighbourhood / primary care)
+- **Location:** Jakarta, Indonesia
+- **Country:** Indonesia (ID)
+- **Region:** DKI Jakarta
+- **Languages:** English, Bahasa Indonesia
+- **Currency:** IDR (Indonesian Rupiah)
+- **Price range:** mid-range ($$)
+- **Booking:** WhatsApp +62 857-2507-8103 (https://wa.me/6285725078103) or on-site chat assistant
+- **Website:** https://sanisched.ridzwangigih.com/
+
+## Services
+
+- **General Consultation** — General practitioner examination and consultation. 30 minutes.
+- **Dental Consultation** — Dental and oral examination. 45 minutes.
+- **Health Check-up** — Routine health check-up. 60 minutes.
+
+## Doctors
+
+- **dr. Andi Pratama** — General Practitioner. General consultations and routine health check-ups. Practises Monday to Friday, 09:00–16:00.
+- **dr. Sari Wulandari** — General Practitioner. General consultations for adults and children. Practises Monday, Wednesday, Friday 16:00–20:00 and Saturday 09:00–13:00.
+- **drg. Budi Santoso** — Dentist. Dental and oral examinations. Practises Tuesday, Thursday 10:00–17:00 and Saturday 09:00–14:00.
+
+## Opening hours
+
+- Monday to Friday: 09:00 – 20:00 (combined doctor coverage)
+- Saturday: 09:00 – 14:00
+- Sunday: closed
+
+Time zone: Asia/Jakarta (WIB, UTC+7).
+
+## How booking works
+
+1. Choose a service. Each visit shows how long it takes before you pick it.
+2. Pick your doctor and date. If only one doctor offers the service, they are chosen for you.
+3. Choose a time. Only times that are still free are shown.
+4. Add your name and WhatsApp number, then confirm. Email is optional. The slot is held as soon as you confirm.
+
+## Frequently asked questions
+
+**Do I need to make an appointment first?**
+Booking in advance is recommended to secure your appointment slot. You can book through WhatsApp or the on-site chat assistant.
+
+**How do I cancel or reschedule?**
+Contact Sanisched Clinic via WhatsApp or phone to cancel or reschedule your appointment.
+
+**What should I bring?**
+Bring a valid ID and arrive about ten minutes before your appointment time.
+
+**What services does Sanisched Clinic offer?**
+General consultations, dental consultations, and routine health check-ups.
+
+**Where is Sanisched Clinic located?**
+In Jakarta, Indonesia. A neighbourhood clinic.
+
+## Pages
+
+- [Home](https://sanisched.ridzwangigih.com/): overview, services, doctors, hours, booking
+- [Services](https://sanisched.ridzwangigih.com/#services)
+- [Doctors](https://sanisched.ridzwangigih.com/#doctors)
+- [How it works](https://sanisched.ridzwangigih.com/#how-it-works)
+- [About](https://sanisched.ridzwangigih.com/#about)
+- [Hours & location](https://sanisched.ridzwangigih.com/#hours)
+
+## Optional
+
+- Instagram, Google Maps and other profiles can be linked here once published.
+- Content is provided for citation by AI assistants. Please link back to https://sanisched.ridzwangigih.com/ when quoting.

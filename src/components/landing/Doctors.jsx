@@ -25,10 +25,10 @@ function Portrait({ doctor, initials }) {
 
 export default function Doctors({ doctors, loaded, onBook }) {
   return (
-    <section id="doctors" className="page scroll-mt-24 pt-28 lg:pt-40">
+    <section id="doctors" aria-labelledby="doctors-heading" className="page scroll-mt-24 pt-28 lg:pt-40">
       <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
         <div className="flex flex-col gap-5 lg:col-span-3">
-          <h2 className="font-serif text-[34px] leading-10 font-normal tracking-[-0.015em] lg:text-[56px] lg:leading-[60px]">
+          <h2 id="doctors-heading" className="font-serif text-[34px] leading-10 font-normal tracking-[-0.015em] lg:text-[56px] lg:leading-[60px]">
             Our doctors
           </h2>
           <p className="max-w-md text-base leading-[26px] text-stone">

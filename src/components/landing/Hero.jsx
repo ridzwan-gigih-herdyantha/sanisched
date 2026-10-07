@@ -11,12 +11,13 @@ export default function Hero({ onBook }) {
   return (
     <section
       id="top"
+      aria-labelledby="hero-heading"
       className="grid lg:grid-cols-[minmax(24px,1fr)_minmax(0,580px)_minmax(32px,60px)_minmax(0,600px)_minmax(0,1fr)]"
     >
       <div className="flex flex-col gap-6 px-5 pt-12 pb-10 sm:px-6 lg:col-start-2 lg:px-0 lg:pt-24 lg:pb-16">
         <p className="text-sm font-medium text-stone lg:text-[15px]">A neighbourhood clinic in Jakarta</p>
 
-        <h1 className="font-serif text-[44px] leading-[48px] font-normal tracking-[-0.02em] sm:text-6xl sm:leading-[1.02] xl:text-[84px] xl:leading-[86px]">
+        <h1 id="hero-heading" className="font-serif text-[44px] leading-[48px] font-normal tracking-[-0.02em] sm:text-6xl sm:leading-[1.02] xl:text-[84px] xl:leading-[86px]">
           {LINES.map((line, i) => (
             <motion.span
               key={line}

@@ -7,10 +7,10 @@ export default function Hours({ clinic, hours }) {
   const today = DAY_LONG[todayDow()];
 
   return (
-    <section id="hours" className="mt-28 scroll-mt-16 bg-mist py-16 lg:mt-56 lg:py-28">
+    <section id="hours" aria-labelledby="hours-heading" className="mt-28 scroll-mt-16 bg-mist py-16 lg:mt-56 lg:py-28">
       <div className="page grid gap-12 lg:grid-cols-2 lg:gap-20">
         <div className="flex flex-col gap-8">
-          <h2 className="font-serif text-[34px] leading-10 font-normal tracking-[-0.015em] lg:text-[56px] lg:leading-[60px]">
+          <h2 id="hours-heading" className="font-serif text-[34px] leading-10 font-normal tracking-[-0.015em] lg:text-[56px] lg:leading-[60px]">
             Hours &amp; location
           </h2>
           {hours.length > 0 ? (
